@@ -17,6 +17,14 @@ class PerplexityProvider extends BaseProvider {
   async makeRequest(prompt) {
     const axios = require('axios');
     
+    const headers = {
+      'Authorization': `Bearer ${this.apiKey}`,
+      'Content-Type': 'application/json'
+    };
+    if (new URL(this.endpoint.baseURL).hostname === 'api.perplexity.ai') {
+      headers['X-Pplx-Integration'] = 'localization-cli';
+    }
+
     const response = await axios.post(
       `${this.endpoint.baseURL}/chat/completions`,
       {
@@ -30,12 +38,7 @@ class PerplexityProvider extends BaseProvider {
         temperature: 0.2,
         max_tokens: 4000
       },
-      {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        }
-      }
+      { headers }
     );
 
     return response.data.choices[0].message.content;
